@@ -12,17 +12,17 @@
 // Function designed for chat between client and server.
 void func(int connfd)
 {
-    char buff[MAX];
+    char buff[MAX_MSG_SIZE];
     int n;
     // infinite loop for chat
     for (;;) {
-        bzero(buff, MAX);
+        bzero(buff, MAX_MSG_SIZE);
    
         // read the message from client and copy it in buffer
         read(connfd, buff, sizeof(buff));
         // print buffer which contains the client contents
         printf("From client: %s\t To client : ", buff);
-        bzero(buff, MAX);
+        bzero(buff, MAX_MSG_SIZE);
         n = 0;
         // copy server message in the buffer
         while ((buff[n++] = getchar()) != '\n')

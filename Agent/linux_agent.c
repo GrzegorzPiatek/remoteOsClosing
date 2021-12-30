@@ -7,7 +7,7 @@
 #define SA struct sockaddr
 void func(int sockfd)
 {
-    char buff[MAX];
+    char buff[MAX_MSG_SIZE];
     int n;
     for (;;) {
         bzero(buff, sizeof(buff));
