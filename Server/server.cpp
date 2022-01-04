@@ -50,10 +50,10 @@ void * socketThread(void *arg)
 
     int newSocket = *((int *)arg);
     for(;;){
-        if (read(newSocket , buff, MAX_MSG_SIZE) < 0){
+        if (read(newSocket , buff, MAX_MSG_SIZE) == 0){
             break;
         }
-        printf("From client: %s\t", buff);
+        printf("[%d]: From client: %s\t", newSocket buff);
     }
 
     printf("Exit socketThread \n");
