@@ -53,7 +53,7 @@ void * socketThread(void *arg)
         if (read(newSocket , buff, MAX_MSG_SIZE) == 0){
             break;
         }
-        printf("[%d]: From client: %s\t", newSocket buff);
+        printf("[%d]: From client: %s\t", newSocket, buff);
     }
 
     printf("Exit socketThread \n");
