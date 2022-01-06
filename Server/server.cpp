@@ -11,55 +11,57 @@
 
 #define SA struct sockaddr
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+struct os_info{
+    char os_name[MAX_OS_NAME_SIZE];
+    int permission_lvl;
+    int socket;
+} os[MAX_OS_NUMBER];
 
+struct message{
+    char action[MAX_ACTION_SIZE];
+    char name[MAX_ACTION_SIZE];
+    int number;
+};
 
-// Function designed for chat between client and server.
-void func(int connfd)
-{
-    char buff[MAX_MSG_SIZE];
-    // infinite loop for chat
-    for (;;) {
-        bzero(buff, MAX_MSG_SIZE);
-   
-        // read the message from client and copy it in buffer
-        read(connfd, buff, sizeof(buff));
-        // print buffer which contains the client contents
-        // printf("From client: %s\t To client : ", buff);
-        printf("From client: %s\t", buff);
-        bzero(buff, MAX_MSG_SIZE);
-        // n = 0;
-        // // copy server message in the buffer
-        // while ((buff[n++] = getchar()) != '\n')
-        //     ;
-   
-        // and send that buffer to client
-        // write(connfd, buff, sizeof(buff));
-   
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0) {
-            printf("Server Exit...\n");
-            break;
-        }
-    }
+// pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+void runMsg(message msg, int socketfd){
+    printf("action: %s, name: %s, number: %d", msg.action, msg.name, msg.number);
 }
 
-void * socketThread(void *arg)
-{   
-    char buff[MAX_MSG_SIZE];
+// void add_new_os(){
 
-    int newSocket = *((int *)arg);
+// }
+
+message string2msg(char* str){
+    char *token = strtok(str, " ");
+    message f_msg;
+
+    strcpy(f_msg.action, token);
+    strcpy(f_msg.name, strtok(NULL, " "));
+    f_msg.number = atoi(strtok(NULL, " "));
+
+    return f_msg;
+}
+
+void * socketThread(void *arg){
+    char raw_msg[MAX_MSG_SIZE];
+
+    int socketfd = *((int *)arg);
     for(;;){
-        if (read(newSocket , buff, MAX_MSG_SIZE) == 0){
+        if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
-        printf("[%d]: From client: %s\t", newSocket, buff);
+        printf("[%d]: Received: %s\t", socketfd, raw_msg);
+        runMsg(string2msg(raw_msg), socketfd);
     }
 
-    printf("Exit socketThread \n");
-    close(newSocket);
+    printf("[%d]: Exit socketThread \n", socketfd);
+    close(socketfd);
     pthread_exit(NULL);
 }
+
+
 
 // Driver function
 int main()
