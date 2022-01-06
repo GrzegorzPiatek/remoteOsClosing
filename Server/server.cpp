@@ -26,7 +26,6 @@ struct message{
 // pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 void runMsg(message msg, int socketfd){
-    printf("-D: runMsg");
     printf("action: %s, name: %s, number: %d \n", msg.action, msg.name, msg.number);
 }
 
@@ -55,7 +54,6 @@ void * socketThread(void *arg){
         }
         printf("[%d]: Received: %s", socketfd, raw_msg);
         message msg = string2msg(raw_msg);
-        printf("-D: after create msg from string");
         runMsg(msg, socketfd);
     }
 
