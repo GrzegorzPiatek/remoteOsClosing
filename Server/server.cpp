@@ -40,7 +40,7 @@ message string2msg(char* str){
     strcpy(f_msg.action, token);
     strcpy(f_msg.name, strtok(NULL, " "));
     f_msg.number = atoi(strtok(NULL, " "));
-
+    
     return f_msg;
 }
 
@@ -53,7 +53,8 @@ void * socketThread(void *arg){
             break;
         }
         printf("[%d]: Received: %s\t", socketfd, raw_msg);
-        runMsg(string2msg(raw_msg), socketfd);
+        message msg = string2msg(raw_msg);
+        runMsg(msg, socketfd);
     }
 
     printf("[%d]: Exit socketThread \n", socketfd);
