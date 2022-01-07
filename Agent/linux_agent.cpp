@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "../constants.h"
+#include <sys/reboot.h> // close system
+
 #define SA struct sockaddr
 
 
@@ -27,7 +29,8 @@ void close_os(int sockfd){
     read(sockfd, msg, MAX_MSG_SIZE);
     if (strstr(msg, "close_os")){
         close(sockfd);
-        system("shutdown -P now");
+        sync();
+        reboot(RB_POWER_OFF);
     }
 }
 
