@@ -55,7 +55,7 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
     if(int os_index = findOsIndex(os_name) >= 0){
         os[os_index].permission_lvl = permission_lvl;
         os[os_index].socketfd = socketfd;
-        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
+        printf("<log> Update OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
 
     }
     else{
@@ -90,12 +90,12 @@ printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
         os[os_index].socketfd = 0;
         return 1;
     }
-    printf("<log> No connection with [%s]", os[os_index].name);
+    printf("<log> No connection with [%s]\n", os[os_index].name);
     return 0; //no connection with OS probably closed
 }
 
 int runMsg(message msg, int socketfd){
-    printf("running msg: %s, %s, %d", msg.action, msg.name, msg.number);
+    printf("<log> running msg: %s, %s, %d\n", msg.action, msg.name, msg.number);
     if(!strcmp(msg.action, "new_os")){    
         add_new_os(msg.name, msg.number, socketfd);
         return 1;
