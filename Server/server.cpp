@@ -83,6 +83,7 @@ void add_new_user(char *username, int permission_lvl, int socketfd){
 }
 
 int close_os(int os_index){
+printf("try to close os with socket: [%d]", os[os_index].socketfd);
     if(os[os_index].socketfd){
         write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
         printf("<log> Sended close signal to [%s]", os[os_index].name);
@@ -111,6 +112,7 @@ int runMsg(message msg, int socketfd){
 }
 
 message string2msg(char* str){
+    printf("in string 2 msg with str: %s\n", str);
     char *token = strtok(str, " ");
     message f_msg;
 
@@ -129,7 +131,7 @@ void * socketThread(void *arg){
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
-        printf("[%d]: Received: %s", socketfd, raw_msg);
+        printf("[%d]: Received: %s\n", socketfd, raw_msg);
         message msg = string2msg(raw_msg);
         pthread_mutex_lock(&guard);
             runMsg(msg, socketfd);
