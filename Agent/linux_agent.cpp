@@ -17,7 +17,7 @@ void sign_in(int sockfd, char* perm_lvl)
     gethostname(os_name, MAX_NAME_SIZE);
     strcat(msg, os_name);
     strcat(msg, perm_lvl);
-    printf(msg);
+    printf("MSG: %s\n",msg);
     write(sockfd, msg, sizeof(msg));
 }
 
