@@ -53,40 +53,43 @@ int findUserIndex(char *username){
 
 void add_new_os(char *os_name, int permission_lvl, int socketfd){
     if(int os_index = findOsIndex(os_name) >= 0){
-        strcpy(os[os_index].name, os_name);
         os[os_index].permission_lvl = permission_lvl;
         os[os_index].socketfd = socketfd;
+        printf("<log> New OS[%d]: %s perm_lvl: %d", os_index, os_name, permission_lvl);
+
     }
     else{
         strcpy(os[os_counter].name, os_name);
         os[os_counter].permission_lvl = permission_lvl;
         os[os_counter].socketfd = socketfd;
-        os_counter++; 
+        os_counter++;
+        printf("<log> New OS[%d]: %s perm_lvl: %d", os_index, os_name, permission_lvl);
     }
-    printf("New OS: %s perm_lvl: %d", os_name, permission_lvl);
 }
 
 void add_new_user(char *username, int permission_lvl, int socketfd){
     if(int user_index = findUserIndex(username) >= 0){
-        strcpy(user[user_index].name, username);
-        user[user_index].permission_lvl = permission_lvl;
         user[user_index].socketfd = socketfd;
+        printf("<log> Update User[%d]: %s perm_lvl: %d", user_index, username, permission_lvl);
+
     }
     else{
         strcpy(user[user_counter].name, username);
         user[user_counter].permission_lvl = permission_lvl;
         user[user_counter].socketfd = socketfd;
-        user_counter++; 
+        user_counter++;
+        printf("<log> New user: [%d]: %s perm_lvl: %d", user_index, username, permission_lvl);
     }
-
 }
 
 int close_os(int os_index){
     if(os[os_index].socketfd){
-        write(os[os_index].socketfd, "shutdown now 1", sizeof("shutdown now 1"));
+        write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
+        printf("<log> Sended close signal to [%s]", os[os_index].name);
         os[os_index].socketfd = 0;
         return 1;
     }
+    printf("<log> No connection with [%s]", os[os_index].name);
     return 0; //no connection with OS probably closed
 }
 
@@ -152,11 +155,11 @@ int main()
     // socket create and verification
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
-        printf("socket creation failed...\n");
+        printf("<log> Socket creation failed...\n");
         exit(0);
     }
     else{
-        printf("Socket successfully created..\n");
+        printf("<log> Socket successfully created..\n");
     }
 
     bzero(&serverAddr, sizeof(serverAddr));
@@ -168,19 +171,19 @@ int main()
    
     // Binding newly created socket to given IP and verification
     if ((bind(serverSocket, (SA*)&serverAddr, sizeof(serverAddr))) != 0) {
-        printf("socket bind failed...\n");
+        printf("<log> Socket bind failed...\n");
         exit(0);
     }
     else
-        printf("Socket successfully binded..\n");
+        printf("<log> Socket successfully binded..\n");
    
     // Now server is ready to listen and verification
     if ((listen(serverSocket, 5)) != 0) {
-        printf("Listen failed...\n");
+        printf("<log> Listen failed...\n");
         exit(0);
     }
     else
-        printf("Server listening..\n");
+        printf("<log> Server listening..\n");
 
     pthread_t tid[60];
     int i = 0;
@@ -191,7 +194,7 @@ int main()
         //for each client request creates a thread and assign the client request to it to process
         //so the main thread can entertain next request
         if( pthread_create(&tid[i++], NULL, socketThread, &newSocket) != 0 )
-            printf("Failed to create thread\n");
+            printf("<log> Failed to create thread\n");
 
         if( i >= 50)
         {
@@ -204,6 +207,5 @@ int main()
         }
     }
 
-    // After chatting close the socket
     close(serverSocket);
 }
