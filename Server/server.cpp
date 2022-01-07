@@ -14,15 +14,15 @@
 int os_counter = 0, user_counter = 0;
 
 struct os_info{
-    char os_name[MAX_NAME_SIZE];
+    char name[MAX_NAME_SIZE];
     int permission_lvl;
-    int socket;
+    int socketfd;
 } os[MAX_OS_NUMBER];
 
 struct user_info{
-    char user_name[MAX_NAME_SIZE];
+    char name[MAX_NAME_SIZE];
     int permission_lvl;
-    int socket;
+    int socketfd;
 } user[MAX_USER_NUMBER];
 
 struct message{
@@ -55,37 +55,41 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
     if(int os_index = findOsIndex(os_name) >= 0){
         strcpy(os[os_index].name, os_name);
         os[os_index].permission_lvl = permission_lvl;
-        os[os_index].socket = socketfd;
+        os[os_index].socketfd = socketfd;
     }
     else{
         strcpy(os[os_counter].name, os_name);
         os[os_counter].permission_lvl = permission_lvl;
-        os[os_counter].socket = socketfd;
+        os[os_counter].socketfd = socketfd;
         os_counter++; 
     }
 }
 
 void add_new_user(char *username, int permission_lvl, int socketfd){
     if(int user_index = findUserIndex(username) >= 0){
-        strcpy(user[user_index].name, user_name);
+        strcpy(user[user_index].name, username);
         user[user_index].permission_lvl = permission_lvl;
-        user[user_index].socket = socketfd;
+        user[user_index].socketfd = socketfd;
     }
     else{
         strcpy(user[user_counter].name, username);
         user[user_counter].permission_lvl = permission_lvl;
-        user[user_counter].socket = socketfd;
+        user[user_counter].socketfd = socketfd;
         user_counter++; 
     }
 
 }
 
-void close_os(int os_index){
-    write(os[os_index].socket, "shutdown now 1", sizeof("shutdown now 1"));
-    os[os_index].socketfd = NULL;
+int close_os(int os_index){
+    if(os[os_index].socketfd){
+        write(os[os_index].socketfd, "shutdown now 1", sizeof("shutdown now 1"));
+        os[os_index].socketfd = 0;
+        return 1;
+    }
+    return 0; //no connection with OS probably closed
 }
 
-void runMsg(message msg, int socketfd){
+int runMsg(message msg, int socketfd){
     if(!strcmp(msg.action, "new_os")){    
         add_new_os(msg.name, msg.number, socketfd);
         return 1;
