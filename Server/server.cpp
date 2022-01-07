@@ -11,11 +11,19 @@
 
 #define SA struct sockaddr
 
+int os_counter = 0, user_counter = 0;
+
 struct os_info{
-    char os_name[MAX_OS_NAME_SIZE];
+    char os_name[MAX_NAME_SIZE];
     int permission_lvl;
     int socket;
 } os[MAX_OS_NUMBER];
+
+struct user_info{
+    char user_name[MAX_NAME_SIZE];
+    int permission_lvl;
+    int socket;
+} user[MAX_USER_NUMBER];
 
 struct message{
     char action[MAX_ACTION_SIZE];
@@ -25,13 +33,73 @@ struct message{
 
 // pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-void runMsg(message msg, int socketfd){
-    printf("action: %s, name: %s, number: %d \n", msg.action, msg.name, msg.number);
+int findOsIndex(char *os_name){
+    for(int i=0; i<os_counter; i++ ){
+        if( strcmp( os[i].name, os_name)  == 0 ){
+            return i;
+        }
+    }
+    return -1;
 }
 
-// void add_new_os(){
+int findUserIndex(char *username){
+    for(int i=0; i<user_counter; i++ ){
+        if( strcmp( user[i].name, username)  == 0 ){
+            return i;
+        }
+    }
+    return -1;
+}
 
-// }
+void add_new_os(char *os_name, int permission_lvl, int socketfd){
+    if(int os_index = findOsIndex(os_name) >= 0){
+        strcpy(os[os_index].name, os_name);
+        os[os_index].permission_lvl = permission_lvl;
+        os[os_index].socket = socketfd;
+    }
+    else{
+        strcpy(os[os_counter].name, os_name);
+        os[os_counter].permission_lvl = permission_lvl;
+        os[os_counter].socket = socketfd;
+        os_counter++; 
+    }
+}
+
+void add_new_user(char *username, int permission_lvl, int socketfd){
+    if(int user_index = findUserIndex(username) >= 0){
+        strcpy(user[user_index].name, user_name);
+        user[user_index].permission_lvl = permission_lvl;
+        user[user_index].socket = socketfd;
+    }
+    else{
+        strcpy(user[user_counter].name, username);
+        user[user_counter].permission_lvl = permission_lvl;
+        user[user_counter].socket = socketfd;
+        user_counter++; 
+    }
+
+}
+
+void close_os(int os_index){
+    write(os[os_index].socket, "shutdown now 1", sizeof("shutdown now 1"));
+    os[os_index].socketfd = NULL;
+}
+
+void runMsg(message msg, int socketfd){
+    if(!strcmp(msg.action, "new_os")){    
+        add_new_os(msg.name, msg.number, socketfd);
+        return 1;
+    }
+    else if(!strcmp(msg.action, "new_user")){
+        add_new_user(msg.name, msg.number, socketfd);
+        return 1;
+    }
+    else if(!strcmp(msg.action, "close_os")){
+        close_os(findOsIndex(msg.name));
+        return 1;
+    }
+    return 0;
+}
 
 message string2msg(char* str){
     char *token = strtok(str, " ");
