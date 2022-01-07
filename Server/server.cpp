@@ -63,7 +63,7 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
         os[os_counter].socketfd = socketfd;
         os_counter++; 
     }
-    printf("New OS: %s perm_lvl: %d", os_name, permission_lvl);
+    printf("New OS: %s perm_lvl: %d\n", os_name, permission_lvl);
 }
 
 void add_new_user(char *username, int permission_lvl, int socketfd){
@@ -82,6 +82,7 @@ void add_new_user(char *username, int permission_lvl, int socketfd){
 }
 
 int close_os(int os_index){
+printf("try to close os with socket: [%d]", os[os_index].socketfd);
     if(os[os_index].socketfd){
         write(os[os_index].socketfd, "shutdown now 1", sizeof("shutdown now 1"));
         os[os_index].socketfd = 0;
@@ -108,6 +109,7 @@ int runMsg(message msg, int socketfd){
 }
 
 message string2msg(char* str){
+    printf("in string 2 msg with str: %s\n", str);
     char *token = strtok(str, " ");
     message f_msg;
 
@@ -126,7 +128,7 @@ void * socketThread(void *arg){
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
-        printf("[%d]: Received: %s", socketfd, raw_msg);
+        printf("[%d]: Received: %s\n", socketfd, raw_msg);
         message msg = string2msg(raw_msg);
         pthread_mutex_lock(&guard);
             runMsg(msg, socketfd);
