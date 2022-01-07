@@ -55,7 +55,7 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
     if(int os_index = findOsIndex(os_name) >= 0){
         os[os_index].permission_lvl = permission_lvl;
         os[os_index].socketfd = socketfd;
-        printf("<log> New OS[%d]: %s perm_lvl: %d", os_index, os_name, permission_lvl);
+        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
 
     }
     else{
@@ -63,14 +63,14 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
         os[os_counter].permission_lvl = permission_lvl;
         os[os_counter].socketfd = socketfd;
         os_counter++;
-        printf("<log> New OS[%d]: %s perm_lvl: %d", os_index, os_name, permission_lvl);
+        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
     }
 }
 
 void add_new_user(char *username, int permission_lvl, int socketfd){
     if(int user_index = findUserIndex(username) >= 0){
         user[user_index].socketfd = socketfd;
-        printf("<log> Update User[%d]: %s perm_lvl: %d", user_index, username, permission_lvl);
+        printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
 
     }
     else{
@@ -78,15 +78,15 @@ void add_new_user(char *username, int permission_lvl, int socketfd){
         user[user_counter].permission_lvl = permission_lvl;
         user[user_counter].socketfd = socketfd;
         user_counter++;
-        printf("<log> New user: [%d]: %s perm_lvl: %d", user_index, username, permission_lvl);
+        printf("<log> New user: [%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
     }
 }
 
 int close_os(int os_index){
-printf("try to close os with socket: [%d]", os[os_index].socketfd);
+printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
     if(os[os_index].socketfd){
         write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
-        printf("<log> Sended close signal to [%s]", os[os_index].name);
+        printf("<log> Sended close signal to [%s]\n", os[os_index].name);
         os[os_index].socketfd = 0;
         return 1;
     }
@@ -112,7 +112,6 @@ int runMsg(message msg, int socketfd){
 }
 
 message string2msg(char* str){
-    printf("in string 2 msg with str: %s\n", str);
     char *token = strtok(str, " ");
     message f_msg;
 
