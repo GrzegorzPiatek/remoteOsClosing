@@ -37,7 +37,7 @@ int findOsIndex(char *os_name){
     for(int i=0; i<os_counter; i++ ){
         printf("<super log> compare os names %s, %s\n", os[i].name, os_name);
         if( strcmp( os[i].name, os_name)  == 0 ){
-            print("<super log> findOsIndex return %d", i);
+            printf("<super log> findOsIndex return %d", i);
             return i;
         }
     }
