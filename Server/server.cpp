@@ -31,7 +31,7 @@ struct message{
     int number;
 };
 
-// pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t guard = PTHREAD_MUTEX_INITIALIZER;
 
 int findOsIndex(char *os_name){
     for(int i=0; i<os_counter; i++ ){
@@ -126,7 +126,9 @@ void * socketThread(void *arg){
         }
         printf("[%d]: Received: %s", socketfd, raw_msg);
         message msg = string2msg(raw_msg);
-        runMsg(msg, socketfd);
+        pthread_mutex_lock(&guard);
+            runMsg(msg, socketfd);
+        pthread_mutex_unlock(&guard);
     }
 
     printf("[%d]: Exit socketThread \n", socketfd);
