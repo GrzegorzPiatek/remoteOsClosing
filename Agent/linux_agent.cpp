@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "../constants.h"
@@ -11,17 +12,17 @@
 
 void sign_in(int sockfd, char* perm_lvl)
 {
-    char os_name[MAX_OS_NAME_SIZE],
+    char os_name[MAX_NAME_SIZE],
         msg[MAX_MSG_SIZE] = "new_os ";
-    gethostname(os_name, MAX_OS_NAME_SIZE)
+    gethostname(os_name, MAX_NAME_SIZE);
     strcat(msg, os_name);
     strcat(msg, perm_lvl);
-    write(sockfd, buff, sizeof(buff));
+    write(sockfd, msg, sizeof(msg));
 }
 
 void close_os(int sockfd){
     char msg[MAX_MSG_SIZE];
-    read(sockfd , msg, MAX_MSG_SIZE) == 0)
+    read(sockfd, msg, MAX_MSG_SIZE);
     if (strstr(msg, "close_os")){
         system("shutdown -P now");
     }
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
         printf("connected to the server..\n");
    
     // register this pc by sending msg to server
-    sign_in(sockfd);
+    sign_in(sockfd, argv[1]);
    
     // w8 for msg to shutdown or restart
     close_os(sockfd);
