@@ -54,7 +54,7 @@ int findUserIndex(char *username){
 }
 
 void add_new_os(char *os_name, int permission_lvl, int socketfd){
-    if(int os_index = findOsIndex(os_name) >= 0){
+    if((int os_index = findOsIndex(os_name)) >= 0){
         os[os_index].permission_lvl = permission_lvl;
         os[os_index].socketfd = socketfd;
         printf("<log> Update OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
