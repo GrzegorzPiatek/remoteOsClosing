@@ -63,6 +63,7 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
         os[os_counter].socketfd = socketfd;
         os_counter++; 
     }
+    printf("New OS: %s perm_lvl: %d", os_name, permission_lvl);
 }
 
 void add_new_user(char *username, int permission_lvl, int socketfd){
@@ -90,6 +91,7 @@ int close_os(int os_index){
 }
 
 int runMsg(message msg, int socketfd){
+    printf("running msg: %s, %s, %d", msg.action, msg.name, msg.number);
     if(!strcmp(msg.action, "new_os")){    
         add_new_os(msg.name, msg.number, socketfd);
         return 1;
