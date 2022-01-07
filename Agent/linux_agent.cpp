@@ -17,6 +17,7 @@ void sign_in(int sockfd, char* perm_lvl)
     gethostname(os_name, MAX_NAME_SIZE);
     strcat(msg, os_name);
     strcat(msg, perm_lvl);
+    printf(msg);
     write(sockfd, msg, sizeof(msg));
 }
 
@@ -24,6 +25,7 @@ void close_os(int sockfd){
     char msg[MAX_MSG_SIZE];
     read(sockfd, msg, MAX_MSG_SIZE);
     if (strstr(msg, "close_os")){
+        close(sockfd);
         system("shutdown -P now");
     }
 }
