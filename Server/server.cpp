@@ -105,6 +105,7 @@ void addNewOS(char *os_name, int permission_lvl, int socketfd){
 void addRootUser(){
     strcpy(user[0].name,"root");
     user[0].permission_lvl = 9;
+    user_counter++;
 }
 
 void addNewUser(char *username, int permission_lvl, int socketfd){
