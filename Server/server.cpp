@@ -25,7 +25,8 @@ struct user_info{
     int permission_lvl;
     int socketfd;
 } user[MAX_USER_NUMBER];
-
+user[0].name = "root";
+user[0].permission_lvl = 9;
 struct message{
     char action[MAX_ACTION_SIZE];
     char name[MAX_ACTION_SIZE];
