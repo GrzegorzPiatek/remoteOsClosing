@@ -8,6 +8,7 @@
 #include "../constants.h"
 #include <unistd.h> // for close
 #include <pthread.h>
+#include <sstream>
 
 #define SA struct sockaddr
 
@@ -33,11 +34,32 @@ struct message{
 
 pthread_mutex_t guard = PTHREAD_MUTEX_INITIALIZER;
 
+
+void sendError(int socketfd, const char* error_msg, int flag){
+    char buff[MAX_MSG_SIZE];
+    char str[sizeof(flag)];
+    sprintf(str, "%d", flag);
+
+    strcpy(buff, "error ");
+    strcat(buff, error_msg);
+    strcat(buff, str);
+    write(socketfd, buff, sizeof(buff));
+}
+
+void sendSuccess(int socketfd, const char* msg, int flag){
+    char buff[MAX_MSG_SIZE];
+    char str[sizeof(flag)];
+    sprintf(str, "%d", flag);
+
+    strcpy(buff, "success ");
+    strcat(buff, msg);
+    strcat(buff, str);
+    write(socketfd, buff, sizeof(buff));
+}
+
 int findOsIndex(char *os_name){
     for(int i=0; i<os_counter; i++ ){
-        printf("<super log> compare os names %s, %s\n", os[i].name, os_name);
         if( strcmp( os[i].name, os_name)  == 0 ){
-            printf("<super log> findOsIndex return %d", i);
             return i;
         }
     }
@@ -53,7 +75,17 @@ int findUserIndex(char *username){
     return -1;
 }
 
-void add_new_os(char *os_name, int permission_lvl, int socketfd){
+int findUserIndexBySocket(int socketfd){
+    for(int i=0; i<user_counter; i++ ){
+        if(user[i].socketfd == socketfd){
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+void addNewOS(char *os_name, int permission_lvl, int socketfd){
     int os_index = findOsIndex(os_name);
     if(os_index >= 0){
         os[os_index].permission_lvl = permission_lvl;
@@ -70,18 +102,36 @@ void add_new_os(char *os_name, int permission_lvl, int socketfd){
     }
 }
 
-void add_new_user(char *username, int permission_lvl, int socketfd){
-    if(int user_index = findUserIndex(username) >= 0){
-        user[user_index].socketfd = socketfd;
-        printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
-
+void addNewUser(char *username, int permission_lvl, int socketfd){
+    if( user[findUserIndexBySocket(socketfd)].permission_lvl < 9){
+        sendError(socketfd, "permission_denied ", 9);
     }
     else{
-        strcpy(user[user_counter].name, username);
-        user[user_counter].permission_lvl = permission_lvl;
-        user[user_counter].socketfd = socketfd;
-        user_counter++;
-        printf("<log> New user: [%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
+        if(int user_index = findUserIndex(username) >= 0){
+            user[user_index].socketfd = socketfd;
+            printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
+
+        }
+        else{
+            strcpy(user[user_counter].name, username);
+            user[user_counter].permission_lvl = permission_lvl;
+            user[user_counter].socketfd = socketfd;
+            user_counter++;
+            printf("<log> New user: [%d]: %s perm_lvl: %d\n", user_index, username, permission_lvl);
+        }
+        sendSuccess(socketfd, "added ", 0);
+    }
+}
+
+void loginUser(char *username, int socketfd){
+    int user_index;
+    if((user_index = findUserIndex(username)) >= 0){
+        user[user_index].socketfd = socketfd;
+        printf("<log> Login User[%d]: %s perm_lvl: %d\n", user_index, username, user[user_index].permission_lvl);
+        sendSuccess(socketfd, "correct_login ", 0);
+    }
+    else{
+        sendError(socketfd, "no_user ", 0);
     }
 }
 
@@ -97,18 +147,23 @@ printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
     return 0; //no connection with OS probably closed
 }
 
+
 int runMsg(message msg, int socketfd){
     printf("<log> running msg: %s, %s, %d\n", msg.action, msg.name, msg.number);
     if(!strcmp(msg.action, "new_os")){    
-        add_new_os(msg.name, msg.number, socketfd);
+        addNewOS(msg.name, msg.number, socketfd);
         return 1;
     }
     else if(!strcmp(msg.action, "new_user")){
-        add_new_user(msg.name, msg.number, socketfd);
+        addNewUser(msg.name, msg.number, socketfd);
         return 1;
     }
     else if(!strcmp(msg.action, "close_os")){
         close_os(findOsIndex(msg.name));
+        return 1;
+    }
+    else if(!strcmp(msg.action, "login")){
+        loginUser(msg.name, socketfd);
         return 1;
     }
     return 0;
