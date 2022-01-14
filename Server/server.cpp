@@ -25,8 +25,7 @@ struct user_info{
     int permission_lvl;
     int socketfd;
 } user[MAX_USER_NUMBER];
-user[0].name = "root";
-user[0].permission_lvl = 9;
+
 struct message{
     char action[MAX_ACTION_SIZE];
     char name[MAX_ACTION_SIZE];
@@ -101,6 +100,11 @@ void addNewOS(char *os_name, int permission_lvl, int socketfd){
         os_counter++;
         printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name, permission_lvl);
     }
+}
+
+void addRootUser(){
+    strcpy(user[0].name,"root");
+    user[0].permission_lvl = 9;
 }
 
 void addNewUser(char *username, int permission_lvl, int socketfd){
@@ -244,6 +248,8 @@ int main()
     }
     else
         printf("<log> Server listening..\n");
+
+    addRootUser();
 
     pthread_t tid[60];
     int i = 0;
