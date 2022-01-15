@@ -43,7 +43,7 @@ void sendError(int socketfd, const char* error_msg, int flag){
     strcpy(buff, "error ");
     strcat(buff, error_msg);
     strcat(buff, str);
-    strcat(buff, '\n');
+    strcat(buff, "\n");
     write(socketfd, buff, sizeof(buff));
 }
 
