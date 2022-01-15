@@ -43,6 +43,7 @@ void sendError(int socketfd, const char* error_msg, int flag){
     strcpy(buff, "error ");
     strcat(buff, error_msg);
     strcat(buff, str);
+    strcat(buff, '\n');
     write(socketfd, buff, sizeof(buff));
 }
 
@@ -54,6 +55,7 @@ void sendSuccess(int socketfd, const char* msg, int flag){
     strcpy(buff, "success ");
     strcat(buff, msg);
     strcat(buff, str);
+    strcat(buff, '\n');
     write(socketfd, buff, sizeof(buff));
 }
 
