@@ -193,6 +193,7 @@ void * socketThread(void *arg){
 
     int socketfd = *((int *)arg);
     for(;;){
+        printf("[%d]: start reading", socketfd, raw_msg);
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
