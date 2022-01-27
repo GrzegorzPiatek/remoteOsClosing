@@ -111,7 +111,7 @@ void addNewUser(std::string username, int permission_lvl, int socketfd){
         sendError(socketfd, "permission_denied");
     }
     else{
-        if(int user_index = findUserIndex(username) >= 0){
+        if((int user_index = findUserIndex(username)) >= 0){
             user[user_index].socketfd = socketfd;
             printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username.c_str(), permission_lvl);
 
