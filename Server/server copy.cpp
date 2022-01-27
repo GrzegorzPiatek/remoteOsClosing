@@ -139,15 +139,25 @@ void loginUser(std::string username, int socketfd){
     }
 }
 
-int close_os(int os_index){
+int close_os(int os_index, int user_index){
     printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
-    if(os[os_index].socketfd){
-        write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
-        printf("<log> Sended close signal to [%s]\n", os[os_index].name.c_str());
-        os[os_index].socketfd = 0;
-        return 1;
+    if(user[user_index].permission_lvl >= os[os_index].permission_lvl){
+        if(os[os_index].socketfd){
+            write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
+            printf("<log> Sended close signal to [%s]\n", os[os_index].name.c_str());
+            os[os_index].socketfd = 0;
+            sendSuccess(user_index.socketfd, "signal_sended");
+            return 1;
+        }
+        else{
+            sendError(user_index.socketfd, "already_closed");
+            printf("<log> No connection with [%s]\n", os[os_index].name.c_str());
+        }
     }
-    printf("<log> No connection with [%s]\n", os[os_index].name.c_str());
+    else{
+        sendError(user_index.socketfd, "permission_denied");
+    }
+
     return 0; //no connection with OS probably closed
 }
 
@@ -167,7 +177,7 @@ int runMsg(message msg, int socketfd){
         return 1;
     }
     else if(msg.action == "close_os"){
-        close_os(findOsIndex(msg.name));
+        close_os(findOsIndex(msg.name), findUserIndexBySocket(socketfd));
         return 1;
     }
     else if(msg.action == "login"){
