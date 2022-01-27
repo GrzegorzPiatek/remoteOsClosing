@@ -146,16 +146,16 @@ int close_os(int os_index, int user_index){
             write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
             printf("<log> Sended close signal to [%s]\n", os[os_index].name.c_str());
             os[os_index].socketfd = 0;
-            sendSuccess(user_index.socketfd, "signal_sended");
+            sendSuccess(user[user_index].socketfd, "signal_sended");
             return 1;
         }
         else{
-            sendError(user_index.socketfd, "already_closed");
+            sendError(user[user_index].socketfd, "already_closed");
             printf("<log> No connection with [%s]\n", os[os_index].name.c_str());
         }
     }
     else{
-        sendError(user_index.socketfd, "permission_denied");
+        sendError(user[user_index].socketfd, "permission_denied");
     }
 
     return 0; //no connection with OS probably closed
