@@ -107,14 +107,14 @@ void addRootUser(){
 }
 
 void addNewUser(std::string username, int permission_lvl, int socketfd){
+    int user_index
     if( user[findUserIndexBySocket(socketfd)].permission_lvl < 9){
         sendError(socketfd, "permission_denied");
     }
     else{
-        if((int user_index = findUserIndex(username)) >= 0){
+        if((user_index = findUserIndex(username)) >= 0){
             user[user_index].socketfd = socketfd;
             printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username.c_str(), permission_lvl);
-
         }
         else{
             user[user_counter].name = username;
