@@ -42,7 +42,8 @@ void sendError(int socketfd, const char* msg){
     strcpy(buff, "error ");
     strcat(buff, msg);
     strcat(buff, "\n");
-    write(socketfd, "error", sizeof("error"));
+    printf("<log> buffer send: %s\n",buff);
+    write(socketfd, buff, sizeof(buff));
 }
 
 void sendSuccess(int socketfd, const char* msg){
@@ -50,7 +51,8 @@ void sendSuccess(int socketfd, const char* msg){
     strcpy(buff, "success ");
     strcat(buff, msg);
     strcat(buff, "\n");
-    write(socketfd, "success", sizeof("success"));
+    printf("<log> buffer send: %s\n",buff);
+    write(socketfd, buff, sizeof(buff));
 }
 
 int findOsIndex(std::string os_name){
