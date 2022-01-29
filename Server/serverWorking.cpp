@@ -140,18 +140,18 @@ void loginUser(std::string username, int socketfd){
 }
 
 int closeOs(int os_index, int user_index){
-    printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
+    printf("<log> Try to close os with socket: [%d]\n", os[os_index].socketfd);
     if(user[user_index].permission_lvl >= os[os_index].permission_lvl){
         if(os[os_index].socketfd){
-            write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
-            printf("<log> Sended close signal to [%s]\n", os[os_index].name.c_str());
+            write(os[os_index].socketfd, "close_os now 0\n", sizeof("close_os now 0\n"));
+            printf("    <log> Send close signal to [%s]\n", os[os_index].name.c_str());
             os[os_index].socketfd = 0;
             sendSuccess(user[user_index].socketfd, "signal_sended ");
             return 1;
         }
         else{
             sendError(user[user_index].socketfd, "already_closed ");
-            printf("<log> No connection with [%s]\n", os[os_index].name.c_str());
+            printf("     <log> No connection with [%s]\n", os[os_index].name.c_str());
         }
     }
     else{
@@ -232,11 +232,11 @@ message string2msg(char* str){
 }
 
 void * socketThread(void *arg){
-    char raw_msg[MAX_MSG_SIZE];
 
     int socketfd = *((int *)arg);
     for(;;){
-        printf("[%d]: Try read %s\n", socketfd, raw_msg);
+        printf("[%d]: Try read\n", socketfd);
+        char raw_msg[MAX_MSG_SIZE] {};
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
