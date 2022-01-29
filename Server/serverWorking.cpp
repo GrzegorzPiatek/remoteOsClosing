@@ -173,10 +173,10 @@ void sendOsNames(int socketfd){
     }
     std::string info_msg = "active_os_number " + std::to_string(active_os_counter) + "\n";
     printf("<log> Start sending %d os name to [%s]\n", active_os_counter, user[findUserIndexBySocket(socketfd)].name.c_str());
-    write(socketfd, info_msg.c_str(), sizeof(info_msg));
+    write(socketfd, info_msg.c_str(), info_msg.length());
     for(int i = 0; i < active_os_counter; i++){
         write(socketfd, os_msgs[i].c_str(), sizeof(os_msgs[i].c_str()));
-        printf("    <log> Send %s\n", os_msgs[i].c_str());
+        printf("    <log> Send %s\n", os_msgs[i].length());
     }
 }
 
@@ -236,7 +236,7 @@ void * socketThread(void *arg){
 
     int socketfd = *((int *)arg);
     for(;;){
-        printf("[%d]: start reading %s\n", socketfd, raw_msg);
+        printf("[%d]: Try read %s\n", socketfd, raw_msg);
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
