@@ -175,8 +175,8 @@ void sendOsNames(int socketfd){
     printf("<log> Start sending %d os name to [%s]\n", active_os_counter, user[findUserIndexBySocket(socketfd)].name.c_str());
     write(socketfd, info_msg.c_str(), info_msg.length());
     for(int i = 0; i < active_os_counter; i++){
-        write(socketfd, os_msgs[i].c_str(), sizeof(os_msgs[i].c_str()));
-        printf("    <log> Send %s\n", os_msgs[i].length());
+        write(socketfd, os_msgs[i].c_str(), os_msgs[i].length());
+        printf("    <log> Send %s\n", os_msgs[i].c_str());
     }
 }
 
