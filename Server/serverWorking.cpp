@@ -96,7 +96,7 @@ void addNewOS(std::string os_name, int permission_lvl, int socketfd){
         os[os_counter].permission_lvl = permission_lvl;
         os[os_counter].socketfd = socketfd;
         os_counter++;
-        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name.c_str(), permission_lvl);
+        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_counter, os_name.c_str(), permission_lvl);
     }
 }
 
@@ -175,8 +175,8 @@ void sendOsNames(int socketfd){
     printf("<log> Start sending %d os name to [%s]\n", active_os_counter, user[findUserIndexBySocket(socketfd)].name.c_str());
     write(socketfd, info_msg.c_str(), sizeof(info_msg));
     for(int i = 0; i < active_os_counter; i++){
-        write(socketfd, os_msgs[i].c_str(), sizeof(os_msgs[i].c_str()));
-        printf("    <log> Send [%s]\n", os_msgs[i].c_str());
+        write(socketfd, os_msgs[i].c_str(), sizeof(os_msgs[i]));
+        printf("    <log> Send %s\n", os_msgs[i].c_str());
     }
 }
 
