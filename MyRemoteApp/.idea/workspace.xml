@@ -13,11 +13,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="db7a8682-b28e-4a08-b809-075cd36a6ff0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/LoginActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/MainActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/Messenger.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidClient/app/src/main/java/com/example/androidclient/Messenger.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AndroidClient/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AndroidClient/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Server/server copy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/server copy.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../constants.h" beforeDir="false" afterPath="$PROJECT_DIR$/../constants.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../s" beforeDir="false" afterPath="$PROJECT_DIR$/../s" afterDir="false" />
     </list>
@@ -107,9 +107,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
       <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
-      <method v="2">
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
+      <method v="2" />
     </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />

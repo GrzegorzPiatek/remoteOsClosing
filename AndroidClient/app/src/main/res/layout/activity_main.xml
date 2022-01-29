@@ -6,30 +6,50 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/terminal"
-        android:layout_width="374dp"
+    <Spinner
+        android:id="@+id/osSpinner"
+        android:layout_width="394dp"
         android:layout_height="48dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
+        android:labelFor="@id/activityTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.432"
+        app:layout_constraintHorizontal_bias="0.47"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499" />
+        app:layout_constraintVertical_bias="0.102" />
 
-    <Button
-        android:id="@+id/sendButton"
+    <TextView
+        android:id="@+id/activityTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="send"
-        android:text="SEND"
+        android:text="Remote Systems"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.934"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.598" />
+        app:layout_constraintVertical_bias="0.036" />
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
+        app:layout_constraintBottom_toBottomOf="@+id/activityTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/activityTitle"
+        app:layout_constraintTop_toTopOf="@+id/activityTitle" />
+
+    <Button
+        android:id="@+id/osClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close OS"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/osSpinner"
+        app:layout_constraintVertical_bias="0.032" />
 </androidx.constraintlayout.widget.ConstraintLayout>

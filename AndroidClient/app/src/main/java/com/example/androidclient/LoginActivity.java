@@ -21,7 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView eLoginInfo;
 
     private String username;
-
+    private String serverResponse;
     private boolean isValid;
 
     public Socket s;
@@ -52,9 +52,10 @@ public class LoginActivity extends AppCompatActivity {
                 else{
                     isValid = login(inputServerAddress, inputName);
                     if(!isValid){
-                        eLoginInfo.setText("Problem with login!");
+                        eLoginInfo.setText("Problem with login!" + serverResponse);
                     }
                     else{
+                        username = inputName;
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("username", username);
                         startActivity(intent);
@@ -65,12 +66,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean login(String serverAddress, String username){
-        Messenger msgSnd = new Messenger();
-        msgSnd.execute(serverAddress, username, "login");
+        Messenger messenger = new Messenger();
+        messenger.execute(serverAddress, username, "login");
         try {
-            return msgSnd.get().contains("success");
+            serverResponse = messenger.get();
         } catch (ExecutionException | InterruptedException e) {
-            return false;
+            e.printStackTrace();
         }
+        return serverResponse.contains("success");
     }
+
+
 }
