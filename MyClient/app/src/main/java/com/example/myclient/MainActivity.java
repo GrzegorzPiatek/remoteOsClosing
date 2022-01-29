@@ -2,9 +2,12 @@ package com.example.myclient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,19 +33,21 @@ public class MainActivity extends AppCompatActivity {
     String ip = "192.168.1.108";
 
     EditText terminal, et_username, et_serveraddress;
-    TextView tv_feedback, tv_logged;
+    TextView tv_feedback, tv_logged, tv_os_list;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        terminal = (EditText)findViewById(R.id.terminal);
         tv_feedback = (TextView)findViewById(R.id.tv_feedback);
+        tv_os_list = (TextView)findViewById(R.id.tv_os_list);
+        tv_logged = (TextView)findViewById(R.id.tv_logged);
+
+        terminal = (EditText)findViewById(R.id.terminal);
         et_username = (EditText)findViewById(R.id.et_username);
         et_serveraddress = (EditText)findViewById(R.id.et_serveraddress);
         et_serveraddress.setText(ip);
-        tv_logged = (TextView)findViewById(R.id.tv_logged);
     }
 
     public void send(View v){
@@ -59,10 +64,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void refresh(View v){
+        GetOsList getOsList = new GetOsList();
+        getOsList.execute(
+                et_username.getText().toString(),
+                et_serveraddress.getText().toString()
+        );
+    }
+
     private boolean isEditTextEmpty(EditText etText) {
         return etText.getText().toString().trim().length() <= 0;
     }
 
+    @SuppressLint("SetTextI18n")
     private boolean feedback(String msg){
         String[] lMsg = (msg.split(" "));
         tv_feedback.setText(lMsg[0].substring(0,1).toUpperCase() +
@@ -73,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         return lMsg[0].contains("success");
     }
-
 
     public class MessageSender extends AsyncTask<String, Void, Void> {
 
@@ -129,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... strings) {
 
-            String ask_msg = "get_all_os" + strings[0] + " 0";
+            String ask_msg = "get_active_os " + strings[0] + " 0";
             String server_address = strings[1];
 
             try {
@@ -142,17 +155,13 @@ public class MainActivity extends AppCompatActivity {
 
                 br = new BufferedReader(new InputStreamReader(is));
                 String msgRec = br.readLine();
-                if (msgRec.contains("error")){
-                    tv_feedback.setText("Receive error!", TextView.BufferType.EDITABLE);
-                    br.close();
-                    pw.close();
-                    s.close();
-                    return null;
-                }
-                else {
-                    tv_feedback.setText("Receive success!", TextView.BufferType.EDITABLE);
-                }
 
+                Integer os_number = Integer.valueOf(msgRec.split(" ")[1]);
+                ArrayList<String> os_list = new ArrayList<String>();
+                for (int i = 0; i<os_number; i++){
+                    os_list.add(br.readLine());
+                }
+                tv_os_list.setText(TextUtils.join("\n", os_list));
 
                 br.close();
                 pw.close();

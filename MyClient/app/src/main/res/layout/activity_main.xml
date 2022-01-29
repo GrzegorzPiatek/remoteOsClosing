@@ -25,12 +25,13 @@
         android:id="@+id/btn_send2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="refresh"
         android:text="REFRESH"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.876"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/tv_os_list"
         app:layout_constraintVertical_bias="0.081" />
 
     <EditText
@@ -76,7 +77,7 @@
         app:layout_constraintVertical_bias="0.039" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tv_os_list"
         android:layout_width="320dp"
         android:layout_height="282dp"
         android:text="Systemy"
@@ -91,7 +92,7 @@
         android:id="@+id/tv_feedback"
         android:layout_width="214dp"
         android:layout_height="43dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/tv_os_list"
         app:layout_constraintEnd_toStartOf="@+id/btn_send"
         app:layout_constraintHorizontal_bias="0.652"
         app:layout_constraintStart_toStartOf="parent"
