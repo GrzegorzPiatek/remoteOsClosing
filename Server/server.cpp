@@ -276,6 +276,7 @@ void * socketThread(void *arg){
             // for case when os is closed manually
             int os_index;
             if((os_index = findOsIndexBySocket(socketfd)) >= 0){
+                printf("<log> Find os index: [%d] of socket [%s]\n", os_index, socketfd);
                 os[os_index].socketfd = 0;
             }
             break;
