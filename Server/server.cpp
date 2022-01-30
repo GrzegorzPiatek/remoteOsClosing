@@ -90,6 +90,15 @@ int findOsIndex(std::string os_name){
     return -1;
 }
 
+int findOsIndexBySocket(int socketfd){
+    for(int i=0; i<os_counter; i++ ){
+        if(os[i].socketfd == socketfd){
+            return i;
+        }
+    }
+    return -1;
+}
+
 int findUserIndex(std::string username){
     for(int i=0; i<user_counter; i++ ){
         if( user[i].name == username ){
@@ -271,6 +280,12 @@ void * socketThread(void *arg){
         pthread_mutex_lock(&guard);
             runMsg(msg, socketfd);
         pthread_mutex_unlock(&guard);
+    }
+
+    // for case when os is closed manually
+    int os_index;
+    if((os_index = findOsIndexBySocket(socketfd)) >= 0){
+        os[os_index].socketfd = 0;
     }
 
     printf("[%d]: Exit socketThread \n", socketfd);
