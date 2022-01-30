@@ -202,8 +202,10 @@ void sendOsNames(int socketfd){
     int active_os_counter = 0;
     for(int i=0; i<os_counter; i++ ){
         if(os[i].socketfd > 0){
-            os_msgs[active_os_counter] = "active_os " + os[i].name + " " + std::to_string(os[i].permission_lvl) + "\n";
-            active_os_counter++;
+            if(write_nosigpipe(os[i].socketfd, "\n", sizeof("\n")) > 0){ // check if OS is active (avoid manually close error)
+                os_msgs[active_os_counter] = "active_os " + os[i].name + " " + std::to_string(os[i].permission_lvl) + "\n";
+                active_os_counter++;
+            }
         }
     }
     std::string info_msg = "active_os_number " + std::to_string(active_os_counter) + "\n";
@@ -273,12 +275,6 @@ void * socketThread(void *arg){
         printf("[%d]: Try read\n", socketfd);
         char raw_msg[MAX_MSG_SIZE] {};
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
-            // for case when os is closed manually
-            int os_index;
-            if((os_index = findOsIndexBySocket(socketfd)) >= 0){
-                printf("<log> Find os index: [%d] of socket [%s]\n", os_index, socketfd);
-                os[os_index].socketfd = 0;
-            }
             break;
         }
         printf("[%d]: Received: %s\n", socketfd, raw_msg);

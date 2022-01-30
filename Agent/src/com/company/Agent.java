@@ -27,12 +27,12 @@ class Agent{
 
             br = new BufferedReader(new InputStreamReader(is));
             String msgRec = br.readLine();
-            if (msgRec.contains("close_os")) {
-                br.close();
-                pw.close();
-                s.close();
-                shutdown();
-            }
+            while(!msgRec.contains("close_os"))
+                msgRec = br.readLine();
+            br.close();
+            pw.close();
+            s.close();
+            shutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -40,8 +40,8 @@ class Agent{
 
     public static void shutdown() throws RuntimeException, IOException {
         String shutdownCommand;
-        shutdownCommand = "shutdown -h now"; // unix + mac
-//        shutdownCommand = "shutdown.exe -s -t 0"; // windows
+//        shutdownCommand = "shutdown -h now"; // unix + mac
+        shutdownCommand = "shutdown.exe -s -t 0"; // windows
         Runtime.getRuntime().exec(shutdownCommand);
         System.exit(0);
     }
