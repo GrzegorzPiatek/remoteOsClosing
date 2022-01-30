@@ -274,8 +274,12 @@ void * socketThread(void *arg){
     for(;;){
         printf("[%d]: Try read\n", socketfd);
         char raw_msg[MAX_MSG_SIZE] {};
-        if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
-            break;
+        char c;
+        read(socketfd , &c, 1);
+        for(int i = 0; i <MAX_MSG_SIZE; i++){
+            if(read(socketfd , &c, 1) == 0) break;
+            raw_msg[i] = c;
+            if(c == '\n') break;
         }
         printf("[%d]: Received: %s\n", socketfd, raw_msg);
         message msg = string2msg(raw_msg);
