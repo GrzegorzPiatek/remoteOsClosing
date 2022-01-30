@@ -273,6 +273,11 @@ void * socketThread(void *arg){
         printf("[%d]: Try read\n", socketfd);
         char raw_msg[MAX_MSG_SIZE] {};
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
+            // for case when os is closed manually
+            int os_index;
+            if((os_index = findOsIndexBySocket(socketfd)) >= 0){
+                os[os_index].socketfd = 0;
+            }
             break;
         }
         printf("[%d]: Received: %s\n", socketfd, raw_msg);
@@ -280,12 +285,6 @@ void * socketThread(void *arg){
         pthread_mutex_lock(&guard);
             runMsg(msg, socketfd);
         pthread_mutex_unlock(&guard);
-    }
-
-    // for case when os is closed manually
-    int os_index;
-    if((os_index = findOsIndexBySocket(socketfd)) >= 0){
-        os[os_index].socketfd = 0;
     }
 
     printf("[%d]: Exit socketThread \n", socketfd);
