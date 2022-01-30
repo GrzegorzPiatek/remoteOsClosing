@@ -3,14 +3,20 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include "../constants.h"
-#include <unistd.h> // for close
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #include <pthread.h>
 #include <sstream>
 #include <string>
 
+#define MAX_MSG_SIZE 128
+#define MAX_NAME_SIZE 90
+#define MAX_ACTION_SIZE 38
+#define MAX_USER_NUMBER 20
+#define MAX_OS_NUMBER 20
+#define PORT 1337
 
 #define SA struct sockaddr
 
@@ -37,24 +43,42 @@ struct message{
 pthread_mutex_t guard = PTHREAD_MUTEX_INITIALIZER;
 
 
+ssize_t write_nosigpipe(int fd, const char *buff, size_t len)
+{
+    sigset_t oldset, newset;
+    ssize_t result;
+    siginfo_t si;
+    struct timespec ts = {0};
+
+    sigemptyset(&newset);
+    sigaddset(&newset, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &newset, &oldset);
+
+    result = write(fd, buff, len);
+
+    while (sigtimedwait(&newset, &si, &ts)>=0 || errno != EAGAIN);
+    pthread_sigmask(SIG_SETMASK, &oldset, 0);
+
+    return result;
+}
+
+
 void sendError(int socketfd, const char* msg){
     char buff[MAX_MSG_SIZE];
     strcpy(buff, "error ");
     strcat(buff, msg);
-    strcat(buff, "\0");
-    write(socketfd, buff, sizeof(buff));
+    strcat(buff, "\n");
+    printf("<log> buffer send: %s\n",buff);
+    write_nosigpipe(socketfd, buff, sizeof(buff));
 }
 
-void sendSuccess(int socketfd, const char* msg, int flag){
+void sendSuccess(int socketfd, const char* msg){
     char buff[MAX_MSG_SIZE];
-    char str[sizeof(flag)];
-    sprintf(str, "%d", flag);
-
     strcpy(buff, "success ");
     strcat(buff, msg);
-    strcat(buff, str);
-    strcat(buff, "\0");
-    write(socketfd, buff, sizeof(buff));
+    strcat(buff, "\n");
+    printf("<log> buffer send: %s\n",buff);
+    write_nosigpipe(socketfd, buff, sizeof(buff));
 }
 
 int findOsIndex(std::string os_name){
@@ -98,7 +122,7 @@ void addNewOS(std::string os_name, int permission_lvl, int socketfd){
         os[os_counter].permission_lvl = permission_lvl;
         os[os_counter].socketfd = socketfd;
         os_counter++;
-        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_index, os_name.c_str(), permission_lvl);
+        printf("<log> New OS[%d]: %s perm_lvl: %d\n", os_counter, os_name.c_str(), permission_lvl);
     }
 }
 
@@ -109,14 +133,14 @@ void addRootUser(){
 }
 
 void addNewUser(std::string username, int permission_lvl, int socketfd){
+    int user_index;
     if( user[findUserIndexBySocket(socketfd)].permission_lvl < 9){
         sendError(socketfd, "permission_denied");
     }
     else{
-        if(int user_index = findUserIndex(username) >= 0){
+        if((user_index = findUserIndex(username)) >= 0){
             user[user_index].socketfd = socketfd;
             printf("<log> Update User[%d]: %s perm_lvl: %d\n", user_index, username.c_str(), permission_lvl);
-
         }
         else{
             user[user_counter].name = username;
@@ -125,7 +149,7 @@ void addNewUser(std::string username, int permission_lvl, int socketfd){
             user_counter++;
             printf("<log> New user: [%d]: %s perm_lvl: %d\n", user_index, username.c_str(), permission_lvl);
         }
-        sendSuccess(socketfd, "added ", 0);
+        sendSuccess(socketfd, "added ");
     }
 }
 
@@ -134,30 +158,59 @@ void loginUser(std::string username, int socketfd){
     if((user_index = findUserIndex(username)) >= 0){
         user[user_index].socketfd = socketfd;
         printf("<log> Login User[%d]: %s perm_lvl: %d\n", user_index, username.c_str(), user[user_index].permission_lvl);
-        sendSuccess(socketfd, "correct_login ", 0);
+        sendSuccess(socketfd, "correct_login ");
     }
     else{
-        sendError(socketfd, "no_user");
+        sendError(socketfd, "no_user ");
     }
 }
 
-int close_os(int os_index){
-    printf("try to close os with socket: [%d]\n", os[os_index].socketfd);
-    if(os[os_index].socketfd){
-        write(os[os_index].socketfd, "close_os now 0", sizeof("close_os now 0"));
-        printf("<log> Sended close signal to [%s]\n", os[os_index].name.c_str());
-        os[os_index].socketfd = 0;
-        return 1;
+int closeOs(int os_index, int user_index){
+    printf("<log> Try to close os with socket: [%d]\n", os[os_index].socketfd);
+    if(user[user_index].permission_lvl >= os[os_index].permission_lvl){
+        if(os[os_index].socketfd){
+            write_nosigpipe(os[os_index].socketfd, "close_os now 0\n", sizeof("close_os now 0\n"));
+            printf("    <log> Send close signal to [%s]\n", os[os_index].name.c_str());
+            os[os_index].socketfd = 0;
+            sendSuccess(user[user_index].socketfd, "signal_sended ");
+            return 1;
+        }
+        else{
+            sendError(user[user_index].socketfd, "already_closed ");
+            printf("     <log> No connection with [%s]\n", os[os_index].name.c_str());
+        }
     }
-    printf("<log> No connection with [%s]\n", os[os_index].name.c_str());
+    else{
+        sendError(user[user_index].socketfd, "permission_denied ");
+    }
+
     return 0; //no connection with OS probably closed
+}
+
+
+void sendOsNames(int socketfd){
+    std::string os_msgs[os_counter];
+    int active_os_counter = 0;
+    for(int i=0; i<os_counter; i++ ){
+        if(os[i].socketfd > 0){
+            os_msgs[active_os_counter] = "active_os " + os[i].name + " " + std::to_string(os[i].permission_lvl) + "\n";
+            active_os_counter++;
+        }
+    }
+    std::string info_msg = "active_os_number " + std::to_string(active_os_counter) + "\n";
+    printf("<log> Start sending %d os name to [%s]\n", active_os_counter, user[findUserIndexBySocket(socketfd)].name.c_str());
+    write_nosigpipe(socketfd, info_msg.c_str(), info_msg.length());
+    for(int i = 0; i < active_os_counter; i++){
+        write_nosigpipe(socketfd, os_msgs[i].c_str(), os_msgs[i].length());
+        printf("    <log> Send %s\n", os_msgs[i].c_str());
+    }
 }
 
 
 int runMsg(message msg, int socketfd){
     printf("<log> running msg: %s, %s, %d\n", msg.action.c_str(), msg.name.c_str(), msg.number);
-    if(msg.action == "error"){    
-        sendError(socketfd, "msg");
+    if(msg.action == "login"){
+        loginUser(msg.name, socketfd);
         return 1;
     }
     else if(msg.action == "new_os"){    
@@ -169,24 +222,21 @@ int runMsg(message msg, int socketfd){
         return 1;
     }
     else if(msg.action == "close_os"){
-        close_os(findOsIndex(msg.name));
+        closeOs(findOsIndex(msg.name), findUserIndexBySocket(socketfd));
         return 1;
     }
-    else if(msg.action == "login"){
-        loginUser(msg.name, socketfd);
+    else if(msg.action == "get_active_os"){
+        sendOsNames(socketfd);
+    }
+    else{
+        sendError(socketfd, "msg");
         return 1;
     }
     return 0;
 }
 
 message string2msg(char* str){
-    // char *token = strtok(str, " ");
     message f_msg;
-
-    // strcpy(f_msg.action, token);
-    // strcpy(f_msg.name, strtok(NULL, " "));
-    // f_msg.number = atoi(strtok(NULL, " "));
-
     std::stringstream ss(str);
     std::string word;
     try{
@@ -203,17 +253,16 @@ message string2msg(char* str){
     catch (const std::exception& e) {
         std::string erro("error");
         f_msg.action = erro;
-        return f_msg;
     }
     return f_msg;
 }
 
 void * socketThread(void *arg){
-    char raw_msg[MAX_MSG_SIZE];
 
     int socketfd = *((int *)arg);
     for(;;){
-        printf("[%d]: start reading %s\n", socketfd, raw_msg);
+        printf("[%d]: Try read\n", socketfd);
+        char raw_msg[MAX_MSG_SIZE] {};
         if (read(socketfd , raw_msg, MAX_MSG_SIZE) == 0){
             break;
         }
